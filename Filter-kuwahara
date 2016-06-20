@@ -1,0 +1,595 @@
+#pragma once
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/opencv.hpp"
+#include "cvToBitmap.h"
+#include <math.h>
+#include <iostream>
+#include <string>
+cv::Mat CitraAsal, Citra;
+int a; //Ukuran mask
+std::string tipeCitra = "";
+double stdDev[4], stdDevMin, rerata[4], rerataHasil, jumlahNilai[4];
+
+namespace operasiPengolahanCitra {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for MyForm
+	/// </summary>
+	public ref class MyForm : public System::Windows::Forms::Form
+	{
+	public:
+		MyForm(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~MyForm()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::PictureBox^  tampilanCitraAsal;
+	private: System::Windows::Forms::PictureBox^  tampilanCitraHasil;
+	protected: 
+
+
+	protected: 
+
+	protected: 
+
+	private: System::Windows::Forms::Button^  buttonMuatCitra;
+	private: System::Windows::Forms::Button^  buttonUpdate;
+	private: System::Windows::Forms::HScrollBar^  hScrollBarMask;
+
+
+
+	private: System::Windows::Forms::TextBox^  textBoxMask;
+
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
+	private: System::Windows::Forms::RadioButton^  radioButtonRGB;
+	private: System::Windows::Forms::RadioButton^  radioButtonGrayscale;
+
+
+
+
+
+
+
+
+	protected: 
+
+	protected: 
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->tampilanCitraAsal = (gcnew System::Windows::Forms::PictureBox());
+			this->tampilanCitraHasil = (gcnew System::Windows::Forms::PictureBox());
+			this->buttonMuatCitra = (gcnew System::Windows::Forms::Button());
+			this->buttonUpdate = (gcnew System::Windows::Forms::Button());
+			this->hScrollBarMask = (gcnew System::Windows::Forms::HScrollBar());
+			this->textBoxMask = (gcnew System::Windows::Forms::TextBox());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
+			this->radioButtonRGB = (gcnew System::Windows::Forms::RadioButton());
+			this->radioButtonGrayscale = (gcnew System::Windows::Forms::RadioButton());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tampilanCitraAsal))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tampilanCitraHasil))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// tampilanCitraAsal
+			// 
+			this->tampilanCitraAsal->Location = System::Drawing::Point(19, 107);
+			this->tampilanCitraAsal->Name = L"tampilanCitraAsal";
+			this->tampilanCitraAsal->Size = System::Drawing::Size(640, 480);
+			this->tampilanCitraAsal->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+			this->tampilanCitraAsal->TabIndex = 0;
+			this->tampilanCitraAsal->TabStop = false;
+			// 
+			// tampilanCitraHasil
+			// 
+			this->tampilanCitraHasil->Location = System::Drawing::Point(679, 107);
+			this->tampilanCitraHasil->Name = L"tampilanCitraHasil";
+			this->tampilanCitraHasil->Size = System::Drawing::Size(640, 480);
+			this->tampilanCitraHasil->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+			this->tampilanCitraHasil->TabIndex = 1;
+			this->tampilanCitraHasil->TabStop = false;
+			// 
+			// buttonMuatCitra
+			// 
+			this->buttonMuatCitra->Location = System::Drawing::Point(19, 39);
+			this->buttonMuatCitra->Name = L"buttonMuatCitra";
+			this->buttonMuatCitra->Size = System::Drawing::Size(104, 23);
+			this->buttonMuatCitra->TabIndex = 2;
+			this->buttonMuatCitra->Text = L"Muat Citra";
+			this->buttonMuatCitra->UseVisualStyleBackColor = true;
+			this->buttonMuatCitra->Click += gcnew System::EventHandler(this, &MyForm::buttonMuatCitra_Click);
+			// 
+			// buttonUpdate
+			// 
+			this->buttonUpdate->Location = System::Drawing::Point(139, 39);
+			this->buttonUpdate->Name = L"buttonUpdate";
+			this->buttonUpdate->Size = System::Drawing::Size(103, 23);
+			this->buttonUpdate->TabIndex = 3;
+			this->buttonUpdate->Text = L"Filter Kuwahara";
+			this->buttonUpdate->UseVisualStyleBackColor = true;
+			this->buttonUpdate->Click += gcnew System::EventHandler(this, &MyForm::buttonUpdate_Click);
+			// 
+			// hScrollBarMask
+			// 
+			this->hScrollBarMask->LargeChange = 1;
+			this->hScrollBarMask->Location = System::Drawing::Point(631, 43);
+			this->hScrollBarMask->Name = L"hScrollBarMask";
+			this->hScrollBarMask->Size = System::Drawing::Size(349, 17);
+			this->hScrollBarMask->TabIndex = 4;
+			this->hScrollBarMask->Scroll += gcnew System::Windows::Forms::ScrollEventHandler(this, &MyForm::hScrollBarMask_Scroll);
+			// 
+			// textBoxMask
+			// 
+			this->textBoxMask->Location = System::Drawing::Point(516, 41);
+			this->textBoxMask->Name = L"textBoxMask";
+			this->textBoxMask->Size = System::Drawing::Size(100, 20);
+			this->textBoxMask->TabIndex = 5;
+			this->textBoxMask->Text = L"1";
+			this->textBoxMask->TextChanged += gcnew System::EventHandler(this, &MyForm::textBoxMask_TextChanged);
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(437, 45);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(71, 13);
+			this->label1->TabIndex = 6;
+			this->label1->Text = L"Ukuran Mask";
+			// 
+			// openFileDialog1
+			// 
+			this->openFileDialog1->FileName = L"openFileDialog1";
+			this->openFileDialog1->Filter = L"Jpeg|*.jpg|All|*.*";
+			this->openFileDialog1->InitialDirectory = L".";
+			// 
+			// radioButtonRGB
+			// 
+			this->radioButtonRGB->AutoSize = true;
+			this->radioButtonRGB->Checked = true;
+			this->radioButtonRGB->Location = System::Drawing::Point(273, 43);
+			this->radioButtonRGB->Name = L"radioButtonRGB";
+			this->radioButtonRGB->Size = System::Drawing::Size(48, 17);
+			this->radioButtonRGB->TabIndex = 7;
+			this->radioButtonRGB->TabStop = true;
+			this->radioButtonRGB->Text = L"RGB";
+			this->radioButtonRGB->UseVisualStyleBackColor = true;
+			this->radioButtonRGB->CheckedChanged += gcnew System::EventHandler(this, &MyForm::radioButtonRGB_CheckedChanged);
+			// 
+			// radioButtonGrayscale
+			// 
+			this->radioButtonGrayscale->AutoSize = true;
+			this->radioButtonGrayscale->Location = System::Drawing::Point(349, 43);
+			this->radioButtonGrayscale->Name = L"radioButtonGrayscale";
+			this->radioButtonGrayscale->Size = System::Drawing::Size(72, 17);
+			this->radioButtonGrayscale->TabIndex = 8;
+			this->radioButtonGrayscale->Text = L"Grayscale";
+			this->radioButtonGrayscale->UseVisualStyleBackColor = true;
+			this->radioButtonGrayscale->CheckedChanged += gcnew System::EventHandler(this, &MyForm::radioButtonGrayscale_CheckedChanged);
+			// 
+			// MyForm
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(1334, 661);
+			this->Controls->Add(this->radioButtonGrayscale);
+			this->Controls->Add(this->radioButtonRGB);
+			this->Controls->Add(this->label1);
+			this->Controls->Add(this->textBoxMask);
+			this->Controls->Add(this->hScrollBarMask);
+			this->Controls->Add(this->buttonUpdate);
+			this->Controls->Add(this->buttonMuatCitra);
+			this->Controls->Add(this->tampilanCitraHasil);
+			this->Controls->Add(this->tampilanCitraAsal);
+			this->Name = L"MyForm";
+			this->Text = L"Program Filter Kuwahara";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tampilanCitraAsal))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tampilanCitraHasil))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+		std::string MarshalString (System::String ^ s) {
+		using namespace Runtime::InteropServices;
+		const char* chars = (const char*)
+		(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+		std::string os = chars;
+		Marshal::FreeHGlobal(IntPtr((void*)chars));
+		return os;
+	}
+
+
+	private: System::Void buttonMuatCitra_Click(System::Object^  sender, System::EventArgs^  e) {
+				 if(openFileDialog1->ShowDialog()==System::Windows::Forms::DialogResult::OK){
+					tampilanCitraAsal->Image=Image::FromFile(openFileDialog1->FileName);					
+					Citra = cv::imread(MarshalString(openFileDialog1->FileName));
+					if (radioButtonRGB->Checked == true) tampilanCitraAsal->Image = IplImageToBitmap(&(IplImage) Citra);
+					else if (radioButtonGrayscale->Checked == true){
+						cv::cvtColor(Citra, CitraAsal, CV_BGR2GRAY);
+						tampilanCitraAsal->Image = IplImageToBitmap(&(IplImage) CitraAsal);
+					}
+					//tampilanCitraHasil->Image = IplImageToBitmap(&(IplImage) CitraAsal);
+					//textBoxMask->Text = "0";
+					 }
+			 }
+			 
+			 
+	void operasiFilterKuwahara(){
+		int i,x,y,xa,ya,xa_,ya_,m,n;		
+		a = Convert::ToInt16(textBoxMask->Text);
+		jumlahNilai[0] = 0;
+		jumlahNilai[1] = 0;
+		jumlahNilai[2] = 0;
+		jumlahNilai[3] = 0;
+		stdDev[0] = 0;
+		stdDev[1] = 0;
+		stdDev[2] = 0;
+		stdDev[3] = 0;		
+		int panjang = CitraAsal.rows;
+		int lebar = CitraAsal.cols;
+		cv::Mat CitraHasil(panjang, lebar, CV_8UC1);
+		//CitraHasil = CitraAsal.clone();		
+		for (y=0; y<lebar; y++){
+			for (x=0; x<panjang; x++){
+				for (n=a; n>=0; n--){
+					for(m=a; m>=0; m--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>lebar-1) ya=lebar-1;
+						if(xa>panjang-1) xa=panjang-1;
+
+						//statistik wilayah
+						jumlahNilai[0] = jumlahNilai[0] + CitraAsal.at<uchar>(xa_,ya_);//kiri atas
+						//std::cout<<"jumlah nilai = "<<jumlahNilai[0]<<std::endl;
+						jumlahNilai[1] = jumlahNilai[1] + CitraAsal.at<uchar>(xa_,ya);//kiri bawah
+						jumlahNilai[2] = jumlahNilai[2] + CitraAsal.at<uchar>(xa,ya_);//kanan atas
+						jumlahNilai[3] = jumlahNilai[3] + CitraAsal.at<uchar>(xa,ya);//kanan bawah
+					}
+				}
+				//std::cout<<"jumlah nilai wilayah 1: "<<jumlahNilai[0]<<std::endl;
+				rerata[0] = jumlahNilai[0]/pow((a+1),2);
+				//std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl<<std::endl;
+				rerata[1] = jumlahNilai[1]/pow((a+1),2);
+				rerata[2] = jumlahNilai[2]/pow((a+1),2);
+				rerata[3] = jumlahNilai[3]/pow((a+1),2);
+
+				//Mencari standar deviasi
+				for (m=a; m>=0; m--){
+					for(n=a; n>=0; n--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>lebar-1) ya=lebar-1;
+						if(xa>panjang-1) xa=panjang-1;
+
+						stdDev[0] = stdDev[0] + abs(CitraAsal.at<uchar>(xa_,ya_)-rerata[0]);//kiri atas
+						stdDev[1] = stdDev[1] + abs(CitraAsal.at<uchar>(xa_,ya)-rerata[1]);//kiri bawah
+						stdDev[2] = stdDev[2] + abs(CitraAsal.at<uchar>(xa,ya_)-rerata[2]);//kanan atas
+						stdDev[3] = stdDev[3] + abs(CitraAsal.at<uchar>(xa,ya)-rerata[3]);//kanan bawah
+					}
+				}
+				stdDev[0] = sqrt(stdDev[0]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl;
+				//std::cout<<"deviasi wilayah 1: "<<stdDev[0]<<std::endl;
+				stdDev[1] = sqrt(stdDev[1]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 2: "<<rerata[1]<<std::endl;
+				//std::cout<<"deviasi wilayah 2: "<<stdDev[1]<<std::endl;
+				stdDev[2] = sqrt(stdDev[2]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 3: "<<rerata[2]<<std::endl;
+				//std::cout<<"deviasi wilayah 3: "<<stdDev[2]<<std::endl;
+				stdDev[3] = sqrt(stdDev[3]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 4: "<<rerata[3]<<std::endl;
+				//std::cout<<"deviasi wilayah 4: "<<stdDev[3]<<std::endl<<std::endl;
+
+				//Mencari standar deviasi paling minimum
+				stdDevMin = stdDev[0];
+				rerataHasil = rerata[0];
+				for (i=0; i<4; i++){
+					if (stdDev [i] < stdDevMin){
+						stdDevMin = stdDev[i];
+						rerataHasil = rerata[i];
+						}					
+				}
+				//std::cout<<"standar deviasi minimum: "<<stdDevMin<<std::endl;
+				//std::cout<<"rerata hasil: "<<rerataHasil<<std::endl<<std::endl;
+				//Mencari nilai hasil
+				CitraHasil.at<uchar>(x,y) = int (rerataHasil);
+				//std::cout<<"Nilai Kuwahara :  "<<Hasil.at<int>(x,y)<<std::endl;
+				//Selesai
+
+				//Reset
+				jumlahNilai[0] = 0;
+				jumlahNilai[1] = 0;
+				jumlahNilai[2] = 0;
+				jumlahNilai[3] = 0;
+			}
+		}
+		tampilanCitraHasil->Image = IplImageToBitmap(&(IplImage) CitraHasil);
+	}
+
+	void operasiFilterKuwahara3Kanal(){
+		int i,x,y,xa,ya,xa_,ya_,m,n,k;
+		a = Convert::ToInt16(textBoxMask->Text);
+		jumlahNilai[0] = 0;
+		jumlahNilai[1] = 0;
+		jumlahNilai[2] = 0;
+		jumlahNilai[3] = 0;
+		stdDev[0] = 0;
+		stdDev[1] = 0;
+		stdDev[2] = 0;
+		stdDev[3] = 0;
+		int panjang = Citra.rows;
+		int lebar = Citra.cols;		
+		cv::Mat CitraHasil(panjang, lebar, CV_8UC3);
+		//CitraHasil = CitraAsal.clone();
+		for(k=0; k<3; k++){
+		for (y=0; y<lebar; y++){
+			for (x=0; x<panjang; x++){
+				for (n=a; n>=0; n--){
+					for(m=a; m>=0; m--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>lebar-1) ya=lebar-1;
+						if(xa>panjang-1) xa=panjang-1;
+
+						//statistik wilayah
+						jumlahNilai[0] = jumlahNilai[0] + Citra.at<cv::Vec3b>(xa_,ya_)[k];//kiri atas
+						//std::cout<<"jumlah nilai = "<<jumlahNilai[0]<<std::endl;
+						jumlahNilai[1] = jumlahNilai[1] + Citra.at<cv::Vec3b>(xa_,ya)[k];//kiri bawah
+						jumlahNilai[2] = jumlahNilai[2] + Citra.at<cv::Vec3b>(xa,ya_)[k];//kanan atas
+						jumlahNilai[3] = jumlahNilai[3] + Citra.at<cv::Vec3b>(xa,ya)[k];//kanan bawah
+					}
+				}
+				//std::cout<<"jumlah nilai wilayah 1: "<<jumlahNilai[0]<<std::endl;
+				rerata[0] = jumlahNilai[0]/pow((a+1),2);
+				//std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl<<std::endl;
+				rerata[1] = jumlahNilai[1]/pow((a+1),2);
+				rerata[2] = jumlahNilai[2]/pow((a+1),2);
+				rerata[3] = jumlahNilai[3]/pow((a+1),2);
+
+				//Mencari standar deviasi
+				for (m=a; m>=0; m--){
+					for(n=a; n>=0; n--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>lebar-1) ya=lebar-1;
+						if(xa>panjang-1) xa=panjang-1;
+
+						stdDev[0] = stdDev[0] + abs(Citra.at<cv::Vec3b>(xa_,ya_)[k]-rerata[0]);//kiri atas
+						stdDev[1] = stdDev[1] + abs(Citra.at<cv::Vec3b>(xa_,ya)[k]-rerata[1]);//kiri bawah
+						stdDev[2] = stdDev[2] + abs(Citra.at<cv::Vec3b>(xa,ya_)[k]-rerata[2]);//kanan atas
+						stdDev[3] = stdDev[3] + abs(Citra.at<cv::Vec3b>(xa,ya)[k]-rerata[3]);//kanan bawah
+					}
+				}
+				stdDev[0] = sqrt(stdDev[0]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl;
+				//std::cout<<"deviasi wilayah 1: "<<stdDev[0]<<std::endl;
+				stdDev[1] = sqrt(stdDev[1]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 2: "<<rerata[1]<<std::endl;
+				//std::cout<<"deviasi wilayah 2: "<<stdDev[1]<<std::endl;
+				stdDev[2] = sqrt(stdDev[2]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 3: "<<rerata[2]<<std::endl;
+				//std::cout<<"deviasi wilayah 3: "<<stdDev[2]<<std::endl;
+				stdDev[3] = sqrt(stdDev[3]/pow((a+1),2));
+				//std::cout<<"rerata wilayah 4: "<<rerata[3]<<std::endl;
+				//std::cout<<"deviasi wilayah 4: "<<stdDev[3]<<std::endl<<std::endl;
+
+				//Mencari standar deviasi paling minimum
+				stdDevMin = stdDev[0];
+				rerataHasil = rerata[0];
+				for (i=0; i<4; i++){
+					if (stdDev [i] < stdDevMin){
+						stdDevMin = stdDev[i];
+						rerataHasil = rerata[i];
+						}					
+				}
+				//std::cout<<"standar deviasi minimum: "<<stdDevMin<<std::endl;
+				//std::cout<<"rerata hasil: "<<rerataHasil<<std::endl<<std::endl;
+				//Mencari nilai hasil
+				CitraHasil.at<cv::Vec3b>(x,y)[k] = int (rerataHasil);
+				//std::cout<<"Nilai Kuwahara :  "<<Hasil.at<int>(x,y)<<std::endl;
+				//Selesai
+
+				//Reset
+				jumlahNilai[0] = 0;
+				jumlahNilai[1] = 0;
+				jumlahNilai[2] = 0;
+				jumlahNilai[3] = 0;
+			}
+		}}
+		tampilanCitraHasil->Image = IplImageToBitmap(&(IplImage) CitraHasil);
+	}
+
+	void operasiCoba(){
+		//Akses piksel
+		int x, y;
+		int panjang = CitraAsal.rows;
+		int lebar = CitraAsal.cols;
+		cv::Mat CitraHasil(panjang, lebar, CV_8UC1);
+		CitraHasil = CitraAsal.clone();
+		for (y=0; y<lebar; y++){
+			for (x=0; x<panjang; x++){
+				CitraHasil.at<uchar>(x,y) = 255 - CitraAsal.at<uchar>(x,y);
+			}
+		}
+		tampilanCitraHasil->Image = IplImageToBitmap(&(IplImage) CitraHasil);
+	}
+	
+
+	void cobaKuwahara(){
+		cv::Mat Citra = (cv::Mat_<int>(3,3)<<3,4,2,5,6,7,8,9,5);
+		cv::Mat Hasil(3,3, CV_8UC1);
+		Hasil = Citra.clone();
+		int i,x,y,xa,ya,xa_,ya_,m,n;
+		int a = 1;
+		jumlahNilai[0] = 0;
+		jumlahNilai[1] = 0;
+		jumlahNilai[2] = 0;
+		jumlahNilai[3] = 0;
+		stdDev[0] = 0;
+		stdDev[1] = 0;
+		stdDev[2] = 0;
+		stdDev[3] = 0;
+		//std::cout<<Citra.cols<<std::endl;
+		for(x=0; x<Citra.cols; x++){
+			for(y=0; y<Citra.rows; y++){
+				for (m=a; m>=0; m--){
+					for(n=a; n>=0; n--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>Citra.rows-1) ya=Citra.rows-1;
+						if(xa>Citra.cols-1) xa=Citra.cols-1;
+						//statistik wilayah
+						jumlahNilai[0] = jumlahNilai[0] + Citra.at<int>(xa_,ya_);//kiri atas
+						//std::cout<<"jumlah nilai = "<<jumlahNilai[0]<<std::endl;
+						jumlahNilai[1] = jumlahNilai[1] + Citra.at<int>(xa_,ya);//kiri bawah
+						jumlahNilai[2] = jumlahNilai[2] + Citra.at<int>(xa,ya_);//kanan atas
+						jumlahNilai[3] = jumlahNilai[3] + Citra.at<int>(xa,ya);//kanan bawah
+					}
+				}
+				//std::cout<<"jumlah nilai wilayah 1: "<<jumlahNilai[0]<<std::endl;
+				rerata[0] = jumlahNilai[0]/pow((a+1),2);
+				//std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl<<std::endl;
+				rerata[1] = jumlahNilai[1]/pow((a+1),2);
+				rerata[2] = jumlahNilai[2]/pow((a+1),2);
+				rerata[3] = jumlahNilai[3]/pow((a+1),2);
+
+				//Mencari standar deviasi
+				for (m=a; m>=0; m--){
+					for(n=a; n>=0; n--){
+						ya_ = y-n;
+						xa_ = x-m;
+						ya = y+n;
+						xa = x+m;
+						//Menentukan batas
+						if(ya_<0) ya_=0;
+						if(xa_<0) xa_=0;
+						if(ya>Citra.rows-1) ya=Citra.rows-1;
+						if(xa>Citra.cols-1) xa=Citra.cols-1;
+
+						stdDev[0] = stdDev[0] + abs(Citra.at<int>(xa_,ya_)-rerata[0]);//kiri atas
+						stdDev[1] = stdDev[1] + abs(Citra.at<int>(xa_,ya)-rerata[1]);//kiri bawah
+						stdDev[2] = stdDev[2] + abs(Citra.at<int>(xa,ya_)-rerata[2]);//kanan atas
+						stdDev[3] = stdDev[3] + abs(Citra.at<int>(xa,ya)-rerata[3]);//kanan bawah
+					}
+				}
+				stdDev[0] = sqrt(stdDev[0]/pow((a+1),2));
+				std::cout<<"rerata wilayah 1: "<<rerata[0]<<std::endl;
+				std::cout<<"deviasi wilayah 1: "<<stdDev[0]<<std::endl;
+				stdDev[1] = sqrt(stdDev[1]/pow((a+1),2));
+				std::cout<<"rerata wilayah 2: "<<rerata[1]<<std::endl;
+				std::cout<<"deviasi wilayah 2: "<<stdDev[1]<<std::endl;
+				stdDev[2] = sqrt(stdDev[2]/pow((a+1),2));
+				std::cout<<"rerata wilayah 3: "<<rerata[2]<<std::endl;
+				std::cout<<"deviasi wilayah 3: "<<stdDev[2]<<std::endl;
+				stdDev[3] = sqrt(stdDev[3]/pow((a+1),2));
+				std::cout<<"rerata wilayah 4: "<<rerata[3]<<std::endl;
+				std::cout<<"deviasi wilayah 4: "<<stdDev[3]<<std::endl<<std::endl;
+
+				//Mencari standar deviasi paling minimum
+				stdDevMin = stdDev[0];
+				rerataHasil = rerata[0];
+				for (i=0; i<4; i++){
+					if (stdDev [i] < stdDevMin){
+						stdDevMin = stdDev[i];
+						rerataHasil = rerata[i];
+						}					
+				}
+				std::cout<<"standar deviasi minimum: "<<stdDevMin<<std::endl;
+				std::cout<<"rerata hasil: "<<rerataHasil<<std::endl<<std::endl;
+				//Mencari nilai hasil
+				Hasil.at<int>(x,y) = int (rerataHasil);
+				std::cout<<"Nilai Kuwahara :  "<<Hasil.at<int>(x,y)<<std::endl;
+				//Selesai
+
+				//Reset
+				jumlahNilai[0] = 0;
+				jumlahNilai[1] = 0;
+				jumlahNilai[2] = 0;
+				jumlahNilai[3] = 0;				
+			}
+		}
+	}
+
+	private: System::Void buttonUpdate_Click(System::Object^  sender, System::EventArgs^  e) {
+				 if (radioButtonRGB->Checked == true) operasiFilterKuwahara3Kanal();
+				 else if (radioButtonGrayscale->Checked == true) operasiFilterKuwahara();
+			}
+
+	private: System::Void textBoxMask_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+				 a = Convert::ToInt16(textBoxMask->Text);
+				 hScrollBarMask->Value = a;
+			}
+
+	private: System::Void hScrollBarMask_Scroll(System::Object^  sender, System::Windows::Forms::ScrollEventArgs^  e) {
+				 a = hScrollBarMask->Value;
+				 textBoxMask->Text = Convert::ToString(a);
+			}
+			
+private: System::Void radioButtonRGB_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 tampilanCitraAsal->Image = IplImageToBitmap(&(IplImage) Citra);			 
+		 }
+private: System::Void radioButtonGrayscale_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 cv::cvtColor(Citra, CitraAsal, CV_BGR2GRAY);
+			 tampilanCitraAsal->Image = IplImageToBitmap(&(IplImage) CitraAsal);
+		 }
+};
+}
